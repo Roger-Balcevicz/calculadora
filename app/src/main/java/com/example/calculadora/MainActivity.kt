@@ -37,22 +37,25 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CalculadoraScreen() {
     var display by remember { mutableStateOf("0") }
+    var expressao by remember { mutableStateOf("") }
     var numero1 by remember { mutableStateOf<Double?>(null) }
     var operacao by remember { mutableStateOf<String?>(null) }
     var limparDisplay by remember { mutableStateOf(false) }
 
     fun aoClicarNumero(valor: String) {
-        display = if (display == "0" || limparDisplay) {
+        if (limparDisplay) {
+            if (operacao == null) expressao = ""
+            display = valor
             limparDisplay = false
-            valor
         } else {
-            display + valor
+            display = if (display == "0") valor else display + valor
         }
     }
 
     fun aoClicarOperacao(op: String) {
         numero1 = display.toDoubleOrNull()
         operacao = op
+        expressao = "$display $op "
         limparDisplay = true
     }
 
@@ -62,6 +65,7 @@ fun CalculadoraScreen() {
         val op = operacao
 
         if (n1 != null && numero2 != null && op != null) {
+            expressao = "$expressao$display ="
             if (op == "/" && numero2 == 0.0) {
                 display = "Erro"
             } else {
@@ -88,6 +92,7 @@ fun CalculadoraScreen() {
 
     fun limparTudo() {
         display = "0"
+        expressao = ""
         numero1 = null
         operacao = null
         limparDisplay = false
@@ -99,18 +104,30 @@ fun CalculadoraScreen() {
             .padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = display,
-            fontSize = 42.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White,
-            textAlign = TextAlign.End,
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .wrapContentHeight(Alignment.Bottom)
-                .padding(16.dp)
-        )
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.End
+        ) {
+            Text(
+                text = expressao,
+                fontSize = 20.sp,
+                color = Color.Gray,
+                textAlign = TextAlign.End,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                text = display,
+                fontSize = 48.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                textAlign = TextAlign.End,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         val botoes = listOf(
             listOf("7", "8", "9", "/"),
